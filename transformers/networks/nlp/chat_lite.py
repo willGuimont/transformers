@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from transformers.transformers import SelfAttentionTransformerEncoder, positional_encoding
+from transformers.transformers import SelfAttentionTransformerEncoder, positional_encoding, FeedForward
 
 
 class ChatLite(nn.Module):
@@ -19,6 +19,7 @@ class ChatLite(nn.Module):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, d_model)
         self.transformer = SelfAttentionTransformerEncoder(nlayers, d_model, nhead, dropout)
+        self.ff = FeedForward(d_model, d_model * 4, vocab_size, dropout)
 
     def forward(self, x):
         """
@@ -33,6 +34,8 @@ class ChatLite(nn.Module):
         x += positional_encoding(num_tokens, d_model, x.device)
         # Self-attention
         x = self.transformer(x, is_causal=True)
+        # Final feed-forward layer
+        x = self.ff(x)
         return x
 
     def loss(self, pred, y):
@@ -49,6 +52,7 @@ class ChatLite(nn.Module):
         # Compute the loss
         return F.cross_entropy(pred, y)
 
+    @torch.no_grad()
     def generate(self, idx: int, max_new_tokens: int, block_size: int):
         """
         Generate new tokens
@@ -57,6 +61,7 @@ class ChatLite(nn.Module):
         :param block_size: size of the context
         :return: generated tokens
         """
+        model.eval()
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -block_size:]
             logits = self(idx_cond)
@@ -64,6 +69,7 @@ class ChatLite(nn.Module):
             probs = F.softmax(logits, dim=-1)
             idx_next = torch.multinomial(probs, num_samples=1)
             idx = torch.cat((idx, idx_next), dim=1)
+        model.train()
         return idx
 
 
