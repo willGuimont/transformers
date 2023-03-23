@@ -2,3 +2,5 @@ numpy
 torch
 torchvision
 einops
+poutyne
+matplotlib

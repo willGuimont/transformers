@@ -246,7 +246,7 @@ def positional_encoding(n_tokens: int, d_model: int, device: torch.device = torc
 class Transformer(nn.Module):
     def __init__(self, num_layers: int, d_model: int, nheads: int, out_size: int, dropout: float):
         """
-        Transformer model.
+        Transformer model from "Attention is all you need" (https://arxiv.org/abs/1706.03762).
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
         :param nheads: number of heads in each transformer layer
