@@ -57,7 +57,7 @@ class VisionTransformer(nn.Module):
         x = torch.cat((cls, x), dim=1)
 
         # Add positional encoding
-        num_tokens, dim = x.shape[1]
+        num_tokens, dim = x.shape[1:]
         x += positional_encoding(num_tokens, dim, x.device)
 
         # Apply dropout
