@@ -23,3 +23,14 @@ NLP:
 - PointBERT (Yu et al., 2022)
 - Perceiver (Jaegle et al., 2021)
 - PerceiverIO (Jaegle et al., 2022)
+
+## Cite this repository
+```
+@software{Guimont-Martin_transformer_flexible_and_2023,
+    author = {Guimont-Martin, William},
+    month = {2},
+    title = {{transformer: flexible and easy to understand transformer models}},
+    version = {0.1.0},
+    year = {2023}
+}
+```
