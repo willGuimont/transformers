@@ -3,6 +3,12 @@
 Collection easy to understand PyTorch transformer-based models.
 The implementation is heavily commented and should be easy to follow.
 
+## Installation
+
+```bash
+pip install git+https://github.com/willGuimont/transformers
+```
+
 ## Implemented models
 
 General:

@@ -141,7 +141,7 @@ if __name__ == '__main__':
     # Training parameters
     batch_size = 128
     block_size = 256
-    max_iters = 10_000
+    max_iters = 100_000
     eval_interval = 1_000
     learning_rate = 3e-4
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -197,3 +197,5 @@ if __name__ == '__main__':
     # Generate some text
     context = torch.zeros((1, 1), dtype=torch.long, device=device)
     print(''.join(decode(model.generate(context, 500, block_size)[0].tolist())))
+
+    torch.save(model.state_dict(), 'logs/chatlite.pt')
