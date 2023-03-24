@@ -2,8 +2,8 @@ import unittest
 
 import torch
 
-from transformers import FeedForward, TransformerEncoderLayer, TransformerEncoder, TransformerDecoderLayer, \
-    TransformerDecoder, SelfAttentionTransformerEncoder, Transformer
+from transformers.transformers import FeedForward, TransformerEncoderLayer, TransformerEncoder, \
+    SelfAttentionTransformerEncoder, TransformerDecoderLayer, TransformerDecoder, Transformer
 
 
 class TestTransformer(unittest.TestCase):
