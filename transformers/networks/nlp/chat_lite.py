@@ -3,22 +3,22 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from transformers.transformers import SelfAttentionTransformerEncoder, positional_encoding, FeedForward
+from transformers.transformers import SelfAttentionTransformerEncoder, gen_positional_encoding, FeedForward
 
 
 class ChatLite(nn.Module):
-    def __init__(self, vocab_size: int, d_model: int, nlayers: int, nhead: int, dropout: float):
+    def __init__(self, vocab_size: int, d_model: int, nlayers: int, n_head: int, dropout: float):
         """
         Simple character-level language model
         :param vocab_size: number of characters in the vocabulary
         :param d_model: dimension of the model
         :param nlayers: number of layers in the transformer
-        :param nhead: number of heads in the multi-head attention
+        :param n_head: number of heads in the multi-head attention
         :param dropout: dropout rate
         """
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, d_model)
-        self.transformer = SelfAttentionTransformerEncoder(nlayers, d_model, nhead, dropout)
+        self.transformer = SelfAttentionTransformerEncoder(nlayers, d_model, n_head, dropout)
         self.ff = FeedForward(d_model, d_model * 4, vocab_size, dropout)
 
     def forward(self, x):
@@ -31,7 +31,7 @@ class ChatLite(nn.Module):
         x = self.embedding(x)
         # Add positional encoding
         _, num_tokens, d_model = x.shape
-        x += positional_encoding(num_tokens, d_model, x.device)
+        x += gen_positional_encoding(num_tokens, d_model, x.device)
         # Self-attention
         x = self.transformer(x, is_causal=True)
         # Final feed-forward layer
@@ -62,7 +62,6 @@ class ChatLite(nn.Module):
         :param block_size: size of the context
         :return: generated tokens
         """
-        model.eval()
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -block_size:]
             logits = self(idx_cond)
@@ -70,7 +69,6 @@ class ChatLite(nn.Module):
             probs = F.softmax(logits, dim=-1)
             idx_next = torch.multinomial(probs, num_samples=1)
             idx = torch.cat((idx, idx_next), dim=1)
-        model.train()
         return idx
 
 
@@ -150,13 +148,14 @@ if __name__ == '__main__':
 
     # Model parameters
     d_model = 384
-    nhead = 6
+    n_head = 6
     nlayer = 6
     dropout = 0.1
 
     # Model and optimizer
-    model = ChatLite(vocab_size, d_model, nlayer, nhead, dropout)
+    model = ChatLite(vocab_size, d_model, nlayer, n_head, dropout)
     model = model.to(device)
+    model.train()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
     # Training loop
@@ -197,6 +196,7 @@ if __name__ == '__main__':
 
     # Generate some text
     context = torch.zeros((1, 1), dtype=torch.long, device=device)
+    model.eval()
     print(''.join(decode(model.generate(context, 500, block_size)[0].tolist())))
 
     torch.save(model.state_dict(), 'logs/chatlite.pt')

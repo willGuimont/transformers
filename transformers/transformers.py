@@ -3,6 +3,8 @@ from typing import Callable, Optional
 import torch
 import torch.nn as nn
 
+from transformers.positional_encoding.absolute_positional_encoding import AbsolutePositionalEncoding
+
 
 class FeedForward(nn.Module):
     def __init__(self, in_channel: int, mid_channels: int, out_channels: int, dropout: float):
@@ -26,19 +28,19 @@ class FeedForward(nn.Module):
 
 
 class TransformerEncoderLayer(nn.Module):
-    def __init__(self, d_model: int, nhead: int, dropout: float, multihead_bias: bool = True,
+    def __init__(self, d_model: int, n_head: int, dropout: float, multihead_bias: bool = True,
                  norm_layer: Callable = nn.LayerNorm):
         """
         Transformer encoder layer using multi-head attention.
         This implementation uses pre-norm instead of post-norm.
         :param d_model: dimension of model
-        :param nhead: number of heads
+        :param n_head: number of heads
         :param dropout: dropout rate
         :param multihead_bias: whether to use bias in multi-head attention
         :param norm_layer: normalization layer type, defaults to LayerNorm
         """
         super().__init__()
-        self.attention = nn.MultiheadAttention(d_model, nhead, dropout, batch_first=True, bias=multihead_bias)
+        self.attention = nn.MultiheadAttention(d_model, n_head, dropout, batch_first=True, bias=multihead_bias)
         self.ffn = FeedForward(d_model, d_model * 4, d_model, dropout)
         self.norm1_q = norm_layer(d_model)
         self.norm1_k = norm_layer(d_model)
@@ -84,7 +86,7 @@ def _init_transformer_weights(module):
 
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, dropout: float,
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, dropout: float,
                  multihead_bias: bool = True, transformer_encoder_layer: Callable = TransformerEncoderLayer,
                  transformer_encoder_layer_params: Optional[dict] = None):
         """
@@ -92,7 +94,7 @@ class TransformerEncoder(nn.Module):
         Allows cross-attention.
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param dropout: dropout rate
         :param multihead_bias: whether to use bias in multi-head attention
         :param transformer_encoder_layer: transformer encoder layer type, defaults to TransformerEncoderLayer
@@ -102,7 +104,8 @@ class TransformerEncoder(nn.Module):
         if transformer_encoder_layer_params is None:
             transformer_encoder_layer_params = {}
         self.layers = nn.ModuleList(
-            [transformer_encoder_layer(d_model, nheads, dropout, multihead_bias, **transformer_encoder_layer_params) for
+            [transformer_encoder_layer(d_model, n_heads, dropout, multihead_bias, **transformer_encoder_layer_params)
+             for
              _ in range(num_layers)])
         self.norm = nn.LayerNorm(d_model)
 
@@ -128,7 +131,7 @@ class TransformerEncoder(nn.Module):
 
 
 class SelfAttentionTransformerEncoder(TransformerEncoder):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, dropout: float,
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, dropout: float,
                  multihead_bias: bool = True, transformer_encoder_layer: Callable = TransformerEncoderLayer,
                  transformer_encoder_layer_params: Optional[dict] = None):
         """
@@ -136,13 +139,13 @@ class SelfAttentionTransformerEncoder(TransformerEncoder):
         Similar to TransformerEncoder but only use self-attention.
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param dropout: dropout rate
         :param multihead_bias: whether to use bias in multi-head attention
         :param transformer_encoder_layer: transformer encoder layer type, defaults to TransformerEncoderLayer
         :param transformer_encoder_layer_params: additional parameters to `transformer_encoder_layer`
         """
-        super().__init__(num_layers, d_model, nheads, dropout, multihead_bias, transformer_encoder_layer,
+        super().__init__(num_layers, d_model, n_heads, dropout, multihead_bias, transformer_encoder_layer,
                          transformer_encoder_layer_params)
 
     def forward(self, x, *, mask=None, is_causal=False):
@@ -161,25 +164,25 @@ class SelfAttentionTransformerEncoder(TransformerEncoder):
 
 
 class TransformerDecoderLayer(nn.Module):
-    def __init__(self, d_model: int, nhead: int, dropout: float, multihead_bias: bool = True,
+    def __init__(self, d_model: int, n_head: int, dropout: float, multihead_bias: bool = True,
                  norm_layer: Callable = nn.LayerNorm):
         """
         Transformer decoder layer using multi-head attention.
         :param d_model: dimension of model
-        :param nhead: number of heads
+        :param n_head: number of heads
         :param dropout: dropout rate
         :param multihead_bias: whether to use bias in multi-head attention
         :param norm_layer: normalization layer, defaults to nn.LayerNorm
         """
         super().__init__()
         # Self-attention block
-        self.self_attention = nn.MultiheadAttention(d_model, nhead, dropout, batch_first=True, bias=multihead_bias)
+        self.self_attention = nn.MultiheadAttention(d_model, n_head, dropout, batch_first=True, bias=multihead_bias)
         self.norm1_target = norm_layer(d_model)
         self.norm1_memory = norm_layer(d_model)
 
         # Cross-attention block
         self.norm2 = norm_layer(d_model)
-        self.cross_attention = nn.MultiheadAttention(d_model, nhead, dropout, batch_first=True, bias=multihead_bias)
+        self.cross_attention = nn.MultiheadAttention(d_model, n_head, dropout, batch_first=True, bias=multihead_bias)
 
         #  Final feed forward block
         self.norm3 = norm_layer(d_model)
@@ -212,7 +215,7 @@ class TransformerDecoderLayer(nn.Module):
 
 
 class TransformerDecoder(nn.Module):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, dropout: float,
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, dropout: float,
                  multihead_bias: bool = True,
                  transformer_decoder_layer: Callable = TransformerDecoderLayer,
                  transformer_decoder_layer_params: Optional[dict] = None):
@@ -220,7 +223,7 @@ class TransformerDecoder(nn.Module):
         Transformer decoder.
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param dropout: dropout rate
         :param multihead_bias: whether to use bias in multi-head attention
         :param transformer_decoder_layer: transformer decoder layer type, defaults to TransformerDecoderLayer
@@ -230,7 +233,8 @@ class TransformerDecoder(nn.Module):
         if transformer_decoder_layer_params is None:
             transformer_decoder_layer_params = {}
         self.layers = nn.ModuleList(
-            [transformer_decoder_layer(d_model, nheads, dropout, multihead_bias, **transformer_decoder_layer_params) for
+            [transformer_decoder_layer(d_model, n_heads, dropout, multihead_bias, **transformer_decoder_layer_params)
+             for
              _ in
              range(num_layers)])
         self.norm = nn.LayerNorm(d_model)
@@ -258,36 +262,18 @@ class TransformerDecoder(nn.Module):
         return target
 
 
-def positional_encoding(n_tokens: int, d_model: int, device: torch.device = torch.device("cpu")):
-    """
-    Generate positional encoding.
-    :param n_tokens: number of tokens
-    :param d_model: dimension of model
-    :param device: device to store positional encoding
-    :return: positional encoding
-    """
-    # Generate position along sequence
-    pos = torch.arange(n_tokens, dtype=torch.float, device=device).reshape(1, -1, 1)
-    # Generate dimension along embedding
-    dim = torch.arange(d_model, dtype=torch.float, device=device).reshape(1, 1, -1)
-    # Compute phase
-    phase = pos / (10000 ** (dim / d_model))
-    # Compute positional encoding as described in "Attention is all you need"
-    pe = torch.where(dim.long() % 2 == 0, torch.sin(phase), torch.cos(phase))
-    return pe
-
-
 class Transformer(nn.Module):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, out_size: int, dropout: float,
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, out_size: int, dropout: float,
                  multihead_bias: bool = True,
                  self_attention_transformer_layer: Callable = SelfAttentionTransformerEncoder,
                  self_attention_transformer_params: Optional[dict] = None,
-                 decoder_layer: Callable = TransformerDecoder, decoder_params: Optional[dict] = None):
+                 decoder_layer: Callable = TransformerDecoder, decoder_params: Optional[dict] = None,
+                 positional_encoding: Optional[nn.Module] = None):
         """
         Transformer model from "Attention is all you need" (https://arxiv.org/abs/1706.03762).
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param out_size: output size
         :param dropout: dropout rate
         :param multihead_bias: whether to use bias in multi-head attention
@@ -295,16 +281,21 @@ class Transformer(nn.Module):
         :param self_attention_transformer_params: additional parameters to `self_attention_transformer_layer`
         :param decoder_layer: decoder layer type, defaults to TransformerDecoder
         :param decoder_params: additional parameters to `decoder_layer`
+        :param positional_encoding: positional encoding type, defaults to AbsolutePositionalEncoding
         """
         super().__init__()
         if self_attention_transformer_params is None:
             self_attention_transformer_params = {}
         if decoder_params is None:
             decoder_params = {}
-        self.transformer_encoder = self_attention_transformer_layer(num_layers, d_model, nheads, dropout,
+        self.transformer_encoder = self_attention_transformer_layer(num_layers, d_model, n_heads, dropout,
                                                                     multihead_bias, **self_attention_transformer_params)
-        self.transformer_decoder = decoder_layer(num_layers, d_model, nheads, dropout, multihead_bias, **decoder_params)
+        self.transformer_decoder = decoder_layer(num_layers, d_model, n_heads, dropout, multihead_bias,
+                                                 **decoder_params)
         self.fc = nn.Linear(d_model, out_size)
+        if positional_encoding is None:
+            positional_encoding = AbsolutePositionalEncoding()
+        self.positional_encoding = positional_encoding
 
     def forward(self, x, target, *, mask=None, is_causal=False, target_mask=None, target_is_causal=False,
                 memory_mask=None, memory_is_causal=False):
@@ -322,12 +313,15 @@ class Transformer(nn.Module):
         """
         _, seq_len, dim = x.shape
         # Add positional encoding to input
-        x += positional_encoding(seq_len, dim, device=x.device)
+        pe = self.positional_encoding(x)
+        x = x + pe
+
         # Encode input
         x = self.transformer_encoder(x, mask=mask, is_causal=is_causal)
 
         # Add positional encoding to target
-        target += positional_encoding(seq_len, dim, device=target.device)
+        pe = self.positional_encoding(target)
+        target = target + pe
 
         # Decode target, cross-attention to the encoder output
         x = self.transformer_decoder(target, x, target_mask=target_mask, target_is_causal=target_is_causal,

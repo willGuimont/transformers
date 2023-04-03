@@ -2,12 +2,12 @@ import unittest
 
 import torch
 
-from transformers.variants.parallel_transformer import ParallelTransformerEncoderLayer, ParallelTransformerEncoder, \
+from transformers.parallel.parallel_transformer import ParallelTransformerEncoderLayer, ParallelTransformerEncoder, \
     ParallelSelfAttentionTransformerEncoder, ParallelTransformerDecoderLayer, ParallelTransformerDecoder, \
     ParallelTransformer
 
 
-class TestTransformer(unittest.TestCase):
+class TestParallelTransformer(unittest.TestCase):
     def test_parallel_transformer_encoder_layer(self):
         batch = 10
         num_token = 5
@@ -18,7 +18,7 @@ class TestTransformer(unittest.TestCase):
         x = torch.randn((batch, num_token, d_model))
         x = trans(x, x, x, is_causal=True)
 
-        self.assertEqual(x.shape, (batch, num_token, d_model))
+        self.assertEqual((batch, num_token, d_model), x.shape)
 
     def test_parallel_transformer_encoder(self):
         batch = 10
@@ -30,7 +30,7 @@ class TestTransformer(unittest.TestCase):
         x = torch.randn((batch, num_token, d_model))
         x = trans(x, x, x, is_causal=True)
 
-        self.assertEqual(x.shape, (batch, num_token, d_model))
+        self.assertEqual((batch, num_token, d_model), x.shape)
 
     def test_parallel_self_transformer_encoder(self):
         batch = 10
@@ -42,7 +42,7 @@ class TestTransformer(unittest.TestCase):
         x = torch.randn((batch, num_token, d_model))
         x = trans(x, is_causal=True)
 
-        self.assertEqual(x.shape, (batch, num_token, d_model))
+        self.assertEqual((batch, num_token, d_model), x.shape)
 
     def test_parallel_transformer_decoder_layer(self):
         batch = 10
@@ -54,7 +54,7 @@ class TestTransformer(unittest.TestCase):
         x = torch.randn((batch, num_token, d_model))
         x = trans(x, x)
 
-        self.assertEqual(x.shape, (batch, num_token, d_model))
+        self.assertEqual((batch, num_token, d_model), x.shape)
 
     def test_parallel_transformer_decoder(self):
         batch = 10
@@ -66,7 +66,7 @@ class TestTransformer(unittest.TestCase):
         x = torch.randn((batch, num_token, d_model))
         x = trans(x, x)
 
-        self.assertEqual(x.shape, (batch, num_token, d_model))
+        self.assertEqual((batch, num_token, d_model), x.shape)
 
     def test_parallel_transformer(self):
         batch = 10
@@ -80,4 +80,4 @@ class TestTransformer(unittest.TestCase):
         target = torch.randn((batch, num_token, d_model))
         x = transformer(x, target)
 
-        self.assertEqual(x.shape, (batch, num_token, out_size))
+        self.assertEqual((batch, num_token, out_size), x.shape)

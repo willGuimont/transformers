@@ -1,17 +1,15 @@
-import math
 import pathlib
 
 import einops as ein
-import numpy as np
 import torch
 import torch.nn as nn
 
-from transformers.transformers import positional_encoding, SelfAttentionTransformerEncoder
+from transformers.transformers import gen_positional_encoding, SelfAttentionTransformerEncoder
 
 
 class VisionTransformer(nn.Module):
     def __init__(self, img_size: int, patch_size: int, num_classes: int, channels: int, num_layers: int, d_model: int,
-                 nheads: int, dropout: float):
+                 n_heads: int, dropout: float):
         """
         Vision Transformer from "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale" (https://arxiv.org/abs/2010.11929)
         :param img_size: size of the image
@@ -20,7 +18,7 @@ class VisionTransformer(nn.Module):
         :param channels: number of channels in the image
         :param num_layers: number of layers in the transformer
         :param d_model: dimension of the model
-        :param nheads: number of heads in the multi-head attention
+        :param n_heads: number of heads in the multi-head attention
         :param dropout: dropout rate
         """
         super().__init__()
@@ -40,7 +38,7 @@ class VisionTransformer(nn.Module):
         # Dropout layer
         self.dropout = nn.Dropout(dropout)
         # Transformer
-        self.trans_enc = SelfAttentionTransformerEncoder(num_layers, d_model, nheads, dropout)
+        self.trans_enc = SelfAttentionTransformerEncoder(num_layers, d_model, n_heads, dropout)
 
         # Final prediction layer
         self.norm = nn.LayerNorm(d_model)
@@ -58,7 +56,7 @@ class VisionTransformer(nn.Module):
 
         # Add positional encoding
         num_tokens, dim = x.shape[1:]
-        x += positional_encoding(num_tokens, dim, x.device)
+        x += gen_positional_encoding(num_tokens, dim, x.device)
 
         # Apply dropout
         x = self.dropout(x)
@@ -85,53 +83,16 @@ class VisionTransformer(nn.Module):
         return x
 
 
-def get_dataloaders(train_split: float, batch_size: int):
-    # Data augmentation
-    transform_train = T.Compose([
-        T.RandAugment(4, 14),
-        T.RandomCrop(32, padding=4),
-        T.RandomHorizontalFlip(),
-        T.ToTensor(),
-        T.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-    transform_test = T.Compose([
-        T.ToTensor(),
-        T.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-    # Load data
-    cifar, cifar_test = CIFAR10('data/', train=True, download=True), CIFAR10('data/', train=False, download=True)
-    cifar.transform = transform_train
-    cifar_test.transform = transform_test
-
-    # Split data
-    num_data = len(cifar)
-    indices = np.arange(num_data)
-    np.random.shuffle(indices)
-    split = math.floor(train_split * num_data)
-    train_idx, valid_idx = indices[:split], indices[split:]
-    train_dataset = Subset(cifar, train_idx)
-    valid_dataset = Subset(cifar, valid_idx)
-
-    # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
-    test_loader = DataLoader(cifar_test, batch_size=batch_size)
-
-    return train_loader, valid_loader, test_loader
-
-
 if __name__ == '__main__':
     import poutyne as pt
-    import torchvision.transforms as T
-    from torch.utils.data import Subset, DataLoader
-    from torchvision.datasets import CIFAR10
+    from transformers.utils.datasets import get_cifar10_dataloaders
     from transformers.utils.history import History
 
     # Training parameters
     epoch = 100
     batch_size = 256
     learning_rate = 1e-4
-    train_slip = 0.8
+    train_split = 0.8
 
     # Model parameters
     img_size = 32
@@ -144,7 +105,7 @@ if __name__ == '__main__':
     dropout = 0.1
 
     # Data
-    train_loader, valid_loader, test_loader = get_dataloaders(train_slip, batch_size)
+    train_loader, valid_loader, test_loader = get_cifar10_dataloaders(train_split, batch_size)
 
     # Model and optimizer
     model = VisionTransformer(img_size, patch_size, num_classes, channels, num_layers, dim_model, num_heads, dropout)
@@ -158,6 +119,7 @@ if __name__ == '__main__':
         pt.ModelCheckpoint('logs/vit_best_epoch_{epoch}.ckpt', monitor='val_acc', mode='max', save_best_only=True,
                            keep_only_last_best=True, restore_best=True, verbose=True,
                            temporary_filename='best_epoch.ckpt.tmp'),
+        pt.ReduceLROnPlateau(monitor='val_acc', mode='max', factor=0.5, patience=5, verbose=True),
     ])
 
     # Display training history

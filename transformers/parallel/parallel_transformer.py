@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 import torch.nn as nn
 
@@ -20,7 +22,7 @@ class NoBiasLayerNorm(nn.LayerNorm):
 
 
 class ParallelTransformerEncoderLayer(TransformerEncoderLayer):
-    def __init__(self, d_model: int, nhead: int, dropout: float, multihead_bias: bool = True):
+    def __init__(self, d_model: int, n_head: int, dropout: float, multihead_bias: bool = True):
         """
         Transformer encoder layer by "Scaling Vision Transformers to 22 Billion Parameters" from Dehghani et al.
         It uses
@@ -31,12 +33,12 @@ class ParallelTransformerEncoderLayer(TransformerEncoderLayer):
         - No biases on the QKV projection and LayerNorms
 
         :param d_model: dimension of model
-        :param nhead: number of heads
+        :param n_head: number of heads
         :param dropout: dropout rate
         :param multihead_bias: use bias on multi-head attention
         """
         # Use NoBiasLayerNorm instead of nn.LayerNorm and do not use bias on multi-head attention
-        super().__init__(d_model, nhead, dropout, multihead_bias=multihead_bias, norm_layer=NoBiasLayerNorm)
+        super().__init__(d_model, n_head, dropout, multihead_bias=multihead_bias, norm_layer=NoBiasLayerNorm)
         # Delete norm on values and replace it with None
         del self.norm1_v
         self.norm1_v = None
@@ -68,50 +70,50 @@ class ParallelTransformerEncoderLayer(TransformerEncoderLayer):
 
 
 class ParallelTransformerEncoder(TransformerEncoder):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, dropout: float, multihead_bias: bool = True):
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, dropout: float, multihead_bias: bool = True):
         """
         Stack of parallel transformer encoder layers.
         Allows cross-attention.
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param dropout: dropout rate
 
         """
         # Use ParallelTransformerEncoderLayer instead of TransformerEncoderLayer
         # and do not use bias on multi-head attention
-        super().__init__(num_layers, d_model, nheads, dropout, multihead_bias=multihead_bias,
+        super().__init__(num_layers, d_model, n_heads, dropout, multihead_bias=multihead_bias,
                          transformer_encoder_layer=ParallelTransformerEncoderLayer)
 
 
 class ParallelSelfAttentionTransformerEncoder(SelfAttentionTransformerEncoder):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, dropout: float, multihead_bias: bool = True):
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, dropout: float, multihead_bias: bool = True):
         """
         Self-attention parallel transformer encoder.
         Similar to ParallelTransformerEncoder but only use self-attention.
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param dropout: dropout rate
         :param multihead_bias: use bias on multi-head attention
         """
         # Use ParallelTransformerEncoderLayer instead of TransformerEncoderLayer
         # and do not use bias on multi-head attention
-        super().__init__(num_layers, d_model, nheads, dropout, multihead_bias=multihead_bias,
+        super().__init__(num_layers, d_model, n_heads, dropout, multihead_bias=multihead_bias,
                          transformer_encoder_layer=ParallelTransformerEncoderLayer)
 
 
 class ParallelTransformerDecoderLayer(TransformerDecoderLayer):
-    def __init__(self, d_model: int, nhead: int, dropout: float, multihead_bias: bool = True):
+    def __init__(self, d_model: int, n_head: int, dropout: float, multihead_bias: bool = True):
         """
         Parallel transformer decoder layer using multi-head attention.
         :param d_model: dimension of model
-        :param nhead: number of heads
+        :param n_head: number of heads
         :param dropout: dropout rate
         :param multihead_bias: use bias on multi-head attention
         """
         # Use NoBiasLayerNorm instead of nn.LayerNorm and do not use bias on multi-head attention
-        super().__init__(d_model, nhead, dropout, multihead_bias=multihead_bias, norm_layer=NoBiasLayerNorm)
+        super().__init__(d_model, n_head, dropout, multihead_bias=multihead_bias, norm_layer=NoBiasLayerNorm)
         self.attn_bias = nn.Parameter(torch.zeros(1, 1, d_model))
         self.mlp_bias = nn.Parameter(torch.zeros(1, 1, d_model))
 
@@ -150,36 +152,37 @@ class ParallelTransformerDecoderLayer(TransformerDecoderLayer):
 
 
 class ParallelTransformerDecoder(TransformerDecoder):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, dropout: float, multihead_bias: bool = True):
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, dropout: float, multihead_bias: bool = True):
         """
         Parallel transformer decoder.
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param dropout: dropout rate
         :param multihead_bias: use bias on multi-head attention
         """
         # Use ParallelTransformerDecoderLayer instead of TransformerDecoderLayer
         # and do not use bias on multi-head attention
-        super().__init__(num_layers, d_model, nheads, dropout, multihead_bias=multihead_bias,
+        super().__init__(num_layers, d_model, n_heads, dropout, multihead_bias=multihead_bias,
                          transformer_decoder_layer=ParallelTransformerDecoderLayer)
 
 
 class ParallelTransformer(Transformer):
-    def __init__(self, num_layers: int, d_model: int, nheads: int, out_size: int, dropout: float,
-                 multihead_bias: bool = True):
+    def __init__(self, num_layers: int, d_model: int, n_heads: int, out_size: int, dropout: float,
+                 multihead_bias: bool = True, positional_encoding: Optional[nn.Module] = None):
         """
         Transformer with parallel encoder and decoder.
         :param num_layers: number of transformer layers
         :param d_model: dimension of model
-        :param nheads: number of heads in each transformer layer
+        :param n_heads: number of heads in each transformer layer
         :param out_size: output size
         :param dropout: dropout rate
         :param multihead_bias: use bias on multi-head attention
+        :param positional_encoding: positional encoding type, defaults to AbsolutePositionalEncoding
         """
         # Use ParallelSelfAttentionTransformerEncoder instead of SelfAttentionTransformerEncoder
         # Use ParallelTransformerDecoder instead of TransformerDecoder
         # and do not use bias on multi-head attention
-        super().__init__(num_layers, d_model, nheads, out_size, dropout, multihead_bias=multihead_bias,
+        super().__init__(num_layers, d_model, n_heads, out_size, dropout, multihead_bias=multihead_bias,
                          self_attention_transformer_layer=ParallelSelfAttentionTransformerEncoder,
-                         decoder_layer=ParallelTransformerDecoder)
+                         decoder_layer=ParallelTransformerDecoder, positional_encoding=positional_encoding)

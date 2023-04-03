@@ -16,6 +16,12 @@ General:
 - Transformer (Vaswani et al., 2017)
 - Parallel Transformer (Dehghani et al., 2023)
 
+Positional encoding:
+
+- Sinusoidal positional encoding
+- Learnable positional encoding
+- Learnable Fourier positional encoding
+
 Vision:
 
 - VisionTransformer (Dosovitskiy et al., 2021)
