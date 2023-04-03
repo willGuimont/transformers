@@ -15,6 +15,7 @@ General:
 
 - Transformer (Vaswani et al., 2017)
 - Parallel Transformer (Dehghani et al., 2023)
+- PerceiverIO (Jaegle et al., 2022)
 
 Positional encoding:
 
@@ -34,8 +35,6 @@ NLP:
 
 - DETR (Carion et al., 2020)
 - PointBERT (Yu et al., 2022)
-- Perceiver (Jaegle et al., 2021)
-- PerceiverIO (Jaegle et al., 2022)
 
 ## Cite this repository
 
