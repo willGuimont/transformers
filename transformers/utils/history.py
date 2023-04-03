@@ -9,7 +9,8 @@ class History:
         """
         Util class to save and display graphs for training metrics.
         Adapted from https://github.com/ulaval-damas/glo4030-labs
-        :param logs_list: list of dict containing the different metrics for each epoch. The dict should have the same keys as taken by the save() method.
+        :param logs_list: list of dict containing the different metrics for each epoch.
+                          The dict should have the same keys as taken by the save() method.
         """
         self.history = defaultdict(list)
 
@@ -20,7 +21,8 @@ class History:
     def save(self, logs):
         """
         Save metrics in the history.
-        :param logs: list of dict containing the different metrics for each epoch. The dict should have the same keys as taken by the save() method.
+        :param logs: list of dict containing the different metrics for each epoch.
+                     The dict should have the same keys as taken by the save() method.
                      Can also contain the key 'lr' for the learning rate.
         :return:
         """

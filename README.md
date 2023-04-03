@@ -14,6 +14,7 @@ pip install git+https://github.com/willGuimont/transformers
 General:
 
 - Transformer (Vaswani et al., 2017)
+- Parallel Transformer (Dehghani et al., 2023)
 
 Vision:
 
@@ -31,6 +32,7 @@ NLP:
 - PerceiverIO (Jaegle et al., 2022)
 
 ## Cite this repository
+
 ```
 @software{Guimont-Martin_transformer_flexible_and_2023,
     author = {Guimont-Martin, William},

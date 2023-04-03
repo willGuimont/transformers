@@ -38,7 +38,8 @@ class ChatLite(nn.Module):
         x = self.ff(x)
         return x
 
-    def loss(self, pred, y):
+    @staticmethod
+    def loss(pred, y):
         """
         Compute the loss
         :param pred: predicted logits
@@ -53,7 +54,7 @@ class ChatLite(nn.Module):
         return F.cross_entropy(pred, y)
 
     @torch.no_grad()
-    def generate(self, idx: int, max_new_tokens: int, block_size: int):
+    def generate(self, idx: torch.Tensor, max_new_tokens: int, block_size: int):
         """
         Generate new tokens
         :param idx: context tokens
@@ -109,7 +110,7 @@ if __name__ == '__main__':
         """
         Decode a list of integers into a string
         :param s: encoded string
-        :return: string
+        :return: decoded string
         """
         return [int_to_str[c] for c in s]
 
