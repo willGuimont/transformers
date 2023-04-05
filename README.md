@@ -21,7 +21,7 @@ Positional encoding:
 
 - Sinusoidal positional encoding
 - Learnable positional encoding
-- Learnable Fourier positional encoding
+- Learnable Fourier positional encoding (Li, 2021)
 
 Vision:
 
