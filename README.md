@@ -1,6 +1,6 @@
 # transformers
 
-Collection of easy to understand PyTorch transformer-based models.
+Collection of easy to understand transformer-based models in PyTorch.
 The implementation is heavily commented and should be easy to follow.
 
 ## Installation
