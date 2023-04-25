@@ -33,8 +33,11 @@ NLP:
 
 ## Next steps
 
+- Swin Transformer (Liu et al., 2021)
 - DETR (Carion et al., 2020)
 - PointBERT (Yu et al., 2022)
+- Hyena Hierarchy: Towards Larger Convolutional Language Models (Poli et al., 2023)
+- Thinking Like Transformers (Weiss et al., 2021)
 
 ## Cite this repository
 
