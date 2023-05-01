@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 
-def positional_encoding(n_tokens: int, d_model: int, device: torch.device = torch.device("cpu")):
+def absolute_positional_encoding(n_tokens: int, d_model: int, device: torch.device = torch.device("cpu")):
     """
     Generate positional encoding.
     :param n_tokens: number of tokens
@@ -35,5 +35,5 @@ class AbsolutePositionalEncoding(nn.Module):
         :return: positional encoding of shape (1, n_tokens, d_model)
         """
         batch, n_tokens, d_model = x.shape
-        pe = positional_encoding(n_tokens, d_model, device=x.device)
+        pe = absolute_positional_encoding(n_tokens, d_model, device=x.device)
         return pe

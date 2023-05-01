@@ -20,6 +20,7 @@ General:
 Positional encoding:
 
 - Sinusoidal positional encoding
+- Relative positional encoding
 - Learnable positional encoding
 - Learnable Fourier positional encoding
 
@@ -38,6 +39,7 @@ NLP:
 - PointBERT (Yu et al., 2022)
 - Hyena Hierarchy: Towards Larger Convolutional Language Models (Poli et al., 2023)
 - Thinking Like Transformers (Weiss et al., 2021)
+- Long short-term memory (Schmidhuber, 1997)
 
 ## Cite this repository
 

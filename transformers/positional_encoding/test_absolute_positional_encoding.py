@@ -3,7 +3,7 @@ import unittest
 import torch
 
 from transformers.positional_encoding.absolute_positional_encoding import AbsolutePositionalEncoding, \
-    positional_encoding
+    absolute_positional_encoding
 
 
 class TestAbsolutePositionalEncoding(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestAbsolutePositionalEncoding(unittest.TestCase):
         d_model = 128
         device = torch.device("cpu")
 
-        pe = positional_encoding(n_tokens, d_model, device)
+        pe = absolute_positional_encoding(n_tokens, d_model, device)
 
         self.assertEqual((1, n_tokens, d_model), pe.shape)
 
