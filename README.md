@@ -34,6 +34,7 @@ NLP:
 
 ## Next steps
 
+- Neural Machine Translation by Jointly Learning to Align and Translate (Bahdanau et al., 2016)
 - Swin Transformer (Liu et al., 2021)
 - DETR (Carion et al., 2020)
 - PointBERT (Yu et al., 2022)
