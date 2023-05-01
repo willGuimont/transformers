@@ -1,6 +1,6 @@
 # transformers
 
-Collection easy to understand PyTorch transformer-based models.
+Collection of easy to understand transformer-based models in PyTorch.
 The implementation is heavily commented and should be easy to follow.
 
 ## Installation
@@ -22,7 +22,7 @@ Positional encoding:
 - Sinusoidal positional encoding
 - Relative positional encoding
 - Learnable positional encoding
-- Learnable Fourier positional encoding
+- Learnable Fourier positional encoding (Li, 2021)
 
 Vision:
 
