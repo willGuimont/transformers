@@ -41,6 +41,7 @@ NLP:
 - Hyena Hierarchy: Towards Larger Convolutional Language Models (Poli et al., 2023)
 - Thinking Like Transformers (Weiss et al., 2021)
 - Long short-term memory (Schmidhuber, 1997)
+- Rethinking Positional Encoding in Language Pre-training (Ke et al., 2021)
 
 ## Cite this repository
 
