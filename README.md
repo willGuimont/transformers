@@ -38,6 +38,7 @@ NLP:
 - Swin Transformer (Liu et al., 2021)
 - DETR (Carion et al., 2020)
 - PointBERT (Yu et al., 2022)
+- Hydra Attention: Efficient Attention with Many Heads (Bolya et al., 2022)
 - Hyena Hierarchy: Towards Larger Convolutional Language Models (Poli et al., 2023)
 - Thinking Like Transformers (Weiss et al., 2021)
 - Long short-term memory (Schmidhuber, 1997)
