@@ -37,6 +37,7 @@ NLP:
 - Neural Machine Translation by Jointly Learning to Align and Translate (Bahdanau et al., 2016)
 - Swin Transformer (Liu et al., 2021)
 - DETR (Carion et al., 2020)
+- Unlimiformer: Long-Range Transformers with Unlimited Length Input (Bertsch et al., 2023)
 - PointBERT (Yu et al., 2022)
 - Hydra Attention: Efficient Attention with Many Heads (Bolya et al., 2022)
 - Hyena Hierarchy: Towards Larger Convolutional Language Models (Poli et al., 2023)
