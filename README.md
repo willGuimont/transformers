@@ -34,8 +34,11 @@ NLP:
 
 ## Next steps
 
+- Optimizing Deeper Transformers on Small Datasets (Xu et al., 2021)
 - Neural Machine Translation by Jointly Learning to Align and Translate (Bahdanau et al., 2016)
 - Swin Transformer (Liu et al., 2021)
+- DINO: Emerging Properties in Self-Supervised Vision Transformers (Caron et al., 2021)
+- FlashAttention (Dao et al., 2022)
 - DETR (Carion et al., 2020)
 - Unlimiformer: Long-Range Transformers with Unlimited Length Input (Bertsch et al., 2023)
 - PointBERT (Yu et al., 2022)
