@@ -6,7 +6,7 @@ from transformers.positional_encoding.relative_positional_encoding import relati
     RelativePositionalEncoding
 
 
-class TestAbsolutePositionalEncoding(unittest.TestCase):
+class TestRelativePositionalEncoding(unittest.TestCase):
     def test_positional_encoding(self):
         n_tokens = 10
         d_model = 128
