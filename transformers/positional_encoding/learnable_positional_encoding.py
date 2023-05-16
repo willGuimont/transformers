@@ -10,10 +10,10 @@ class LearnablePositionalEncoding(nn.Module):
         super().__init__()
         self.pe = nn.Parameter(torch.randn(1, n_tokens, d_model))
 
-    def forward(self, x):
+    def forward(self, _x):
         """
         Generate positional encoding to input.
-        :param x: input of shape (batch, n_tokens, d_model)
+        :param _x: input of shape (batch, n_tokens, d_model)
         :return: positional encoding of shape (1, n_tokens, d_model)
         """
         return self.pe

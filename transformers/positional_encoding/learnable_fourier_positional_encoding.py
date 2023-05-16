@@ -10,10 +10,10 @@ class LearnableFourierPositionalEncoding(nn.Module):
                  gamma: float):
         """
         Learnable Fourier Features from "Learnable Fourier Features for Multi-Dimensional Spatial Positional Encoding" (Li et al., 2021)
-        Implementation of Algorithm 1: Compute the Fourier feature positional encoding of a multi-dimensional position
+        Implementation of Algorithm 1: Compute the Fourier feature positional encoding of a multidimensional position
         Computes the positional encoding of a tensor of shape [N, G, M]
         :param positional_groups: positional groups (positions in different groups are independent)
-        :param dimension_dim: each point has a M-dimensional positional values
+        :param dimension_dim: each point has an M-dimensional positional values
         :param fourier_dim: depth of the Fourier feature dimension
         :param hidden_dim: hidden layer dimension
         :param pe_dim: positional encoding dimension

@@ -40,7 +40,7 @@ class History:
         epochs = list(range(1, epoch + 1))
 
         num_plots = 3 if display_lr else 2
-        _, axes = plt.subplots(num_plots, 1, sharex=True)
+        _, axes = plt.subplots(num_plots, 1, sharex='all')
         plt.tight_layout()
 
         axes[0].set_ylabel('Accuracy')

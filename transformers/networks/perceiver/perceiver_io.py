@@ -4,7 +4,8 @@ import einops as ein
 import torch
 import torch.nn as nn
 
-from transformers.transformers import TransformerEncoder, SelfAttentionTransformerEncoder, gen_positional_encoding
+from transformers.positional_encoding.absolute_positional_encoding import absolute_positional_encoding
+from transformers.transformers import TransformerEncoder, SelfAttentionTransformerEncoder
 
 
 class PerceiverIO(nn.Module):
@@ -47,7 +48,7 @@ class PerceiverIO(nn.Module):
 
         # Add position encoding
         num_tokens, dim = x.shape[1:]
-        x += gen_positional_encoding(num_tokens, dim, device=x.device)
+        x += absolute_positional_encoding(num_tokens, dim, device=x.device)
 
         # Apply cross-attention from latent to input array
         latent = self.cross_attention(q=latent, k=x, v=x)

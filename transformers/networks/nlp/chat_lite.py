@@ -3,7 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from transformers.transformers import SelfAttentionTransformerEncoder, gen_positional_encoding, FeedForward
+from transformers.positional_encoding.absolute_positional_encoding import absolute_positional_encoding
+from transformers.transformers import SelfAttentionTransformerEncoder, FeedForward
 
 
 class ChatLite(nn.Module):
@@ -31,7 +32,7 @@ class ChatLite(nn.Module):
         x = self.embedding(x)
         # Add positional encoding
         _, num_tokens, d_model = x.shape
-        x += gen_positional_encoding(num_tokens, d_model, x.device)
+        x += absolute_positional_encoding(num_tokens, d_model, x.device)
         # Self-attention
         x = self.transformer(x, is_causal=True)
         # Final feed-forward layer

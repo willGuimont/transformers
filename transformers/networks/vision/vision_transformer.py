@@ -4,7 +4,8 @@ import einops as ein
 import torch
 import torch.nn as nn
 
-from transformers.transformers import gen_positional_encoding, SelfAttentionTransformerEncoder
+from transformers.positional_encoding.absolute_positional_encoding import absolute_positional_encoding
+from transformers.transformers import SelfAttentionTransformerEncoder
 
 
 class VisionTransformer(nn.Module):
@@ -56,7 +57,7 @@ class VisionTransformer(nn.Module):
 
         # Add positional encoding
         num_tokens, dim = x.shape[1:]
-        x += gen_positional_encoding(num_tokens, dim, x.device)
+        x += absolute_positional_encoding(num_tokens, dim, x.device)
 
         # Apply dropout
         x = self.dropout(x)
