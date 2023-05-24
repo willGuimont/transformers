@@ -50,6 +50,7 @@ class Swin(nn.Module):
         self.fc = nn.Linear(d_model, num_classes)
 
     def forward(self, x):
+        raise NotImplementedError()
         batch_size = x.shape[0]
 
         # Split image into patches and project them
