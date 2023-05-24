@@ -18,14 +18,13 @@ class TestRelativePositionalEncoding(unittest.TestCase):
         self.assertEqual((n_tokens, n_tokens, d_model), pe.shape)
 
     def test_positional_encoding_class(self):
-        batch = 10
+        batch = 5
         n_tokens = 10
-        d_model = 128
         device = torch.device("cpu")
-        x = torch.randn((batch, n_tokens, d_model), device=device)
+        x = torch.randn((batch, n_tokens, n_tokens), device=device)
 
-        pe_module = RelativePositionalEncoding(n_tokens, d_model)
+        pe_module = RelativePositionalEncoding(n_tokens)
 
-        pe = pe_module(x)
+        x = pe_module(x)
 
-        self.assertEqual((n_tokens, n_tokens, d_model), pe.shape)
+        self.assertEqual((batch, n_tokens, n_tokens), x.shape)

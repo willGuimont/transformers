@@ -3,7 +3,8 @@ import unittest
 import torch
 
 from transformers.transformers import FeedForward, TransformerEncoderLayer, TransformerEncoder, \
-    SelfAttentionTransformerEncoder, TransformerDecoderLayer, TransformerDecoder, Transformer
+    SelfAttentionTransformerEncoder, TransformerDecoderLayer, TransformerDecoder, Transformer, AttentionHead, \
+    MultiHeadAttention, RelativeTransformerEncoderLayer
 
 
 class TestTransformer(unittest.TestCase):
@@ -24,10 +25,50 @@ class TestTransformer(unittest.TestCase):
         num_token = 5
         d_model = 128
 
-        trans = TransformerEncoderLayer(d_model, 4, 0.1)
+        trans = TransformerEncoderLayer(d_model, 4, 0.1, False)
 
         x = torch.randn((batch, num_token, d_model))
         x = trans(x, x, x, is_causal=True)
+
+        self.assertEqual((batch, num_token, d_model), x.shape)
+
+    def test_attention_head(self):
+        batch = 10
+        num_token = 5
+        d_model = 128
+        head_size = 6
+
+        attn = AttentionHead(d_model, head_size, 0.1)
+
+        x = torch.randn((batch, num_token, d_model))
+        x = attn(x, x, x)
+
+        self.assertEqual((batch, num_token, head_size), x.shape)
+
+    def test_multihead_attention(self):
+        batch = 10
+        num_token = 5
+        d_model = 128
+        head_size = 6
+        n_heads = 4
+
+        attn = MultiHeadAttention(d_model, n_heads, head_size, 0.1)
+
+        x = torch.randn((batch, num_token, d_model))
+        x = attn(x, x, x)
+
+        self.assertEqual((batch, num_token, d_model), x.shape)
+
+    def test_relative_transformer_encoder_layer(self):
+        batch = 10
+        num_token = 5
+        d_model = 128
+        n_heads = 4
+
+        trans = RelativeTransformerEncoderLayer(d_model, n_heads, 0.1, False, num_token)
+
+        x = torch.randn((batch, num_token, d_model))
+        x = trans(x, x, x)
 
         self.assertEqual((batch, num_token, d_model), x.shape)
 

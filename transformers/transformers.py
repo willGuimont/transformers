@@ -1,9 +1,12 @@
 from typing import Callable, Optional
 
+import pipeline as pp
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from transformers.positional_encoding.absolute_positional_encoding import AbsolutePositionalEncoding
+from transformers.positional_encoding.relative_positional_encoding import RelativePositionalEncoding
 
 
 class FeedForward(nn.Module):
@@ -27,8 +30,18 @@ class FeedForward(nn.Module):
         return self.ffn(x)
 
 
+def generate_causal_mask(size: int, device: torch.device):
+    """
+    Generate causal mask.
+    :param size: size of mask
+    :param device: device to put mask on
+    :return: causal mask
+    """
+    return torch.triu(torch.full((size, size), float('-inf'), device=device), diagonal=1)
+
+
 class TransformerEncoderLayer(nn.Module):
-    def __init__(self, d_model: int, n_head: int, dropout: float, multihead_bias: bool = True,
+    def __init__(self, d_model: int, n_head: int, dropout: float, multihead_bias: bool,
                  norm_layer: Callable = nn.LayerNorm):
         """
         Transformer encoder layer using multi-head attention.
@@ -60,6 +73,8 @@ class TransformerEncoderLayer(nn.Module):
         # Apply pre-norm
         q, k, v = self.norm1_q(q), self.norm1_k(k), self.norm1_v(v)
         # Multi-head attention and residual connection
+        if mask is None and is_causal:
+            mask = generate_causal_mask(q.size(1), q.device)
         q = q + self.attention(
             q, k, v,
             attn_mask=mask,
@@ -67,6 +82,81 @@ class TransformerEncoderLayer(nn.Module):
         # Feed forward network and residual connection
         q = q + self.ffn(self.norm2(q))
         return q
+
+
+class AttentionHead(nn.Module):
+    def __init__(self, d_model: int, head_size: int, dropout: float, attention_operation: Callable = pp.Identity()):
+        """
+        Single head attention that allows to apply operation to the attention matrix before masking and softmax.
+        :param d_model: dimension of embedding
+        :param head_size: size of head
+        :param dropout: dropout rate
+        :param attention_operation: operation to apply to attention matrix before masking and softmax
+        """
+        super().__init__()
+        self.q_proj = nn.Linear(d_model, head_size, bias=False)
+        self.k_proj = nn.Linear(d_model, head_size, bias=False)
+        self.v_proj = nn.Linear(d_model, head_size, bias=False)
+        self.dropout = nn.Dropout(dropout)
+        self.attention_operation = attention_operation
+
+    def forward(self, q, k, v, attn_mask=None, is_causal=False):
+        if is_causal is not False:
+            raise ValueError("AttentionHead does not support is_causal")
+
+        B, T, C = q.shape
+        q, k, v = self.q_proj(q), self.k_proj(k), self.v_proj(v)
+        attention = q.bmm(k.transpose(-2, -1))
+        attention = self.attention_operation(attention)
+
+        if attn_mask is not None:
+            attention[:, attn_mask[:T, :T].logical_not()] = -torch.inf
+
+        scale = q.size(-1) ** 0.5
+        softmax = F.softmax(attention / scale, dim=-1)
+        softmax = self.dropout(softmax)
+
+        return softmax.bmm(v)
+
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model: int, n_head: int, head_size: int, dropout: float,
+                 attention_layer: Callable = AttentionHead, attention_layer_params: Optional[dict] = None):
+        """
+        Multi-head attention layer.
+        :param d_model: dimension of model
+        :param n_head: number of heads
+        :param head_size: size of each head
+        :param dropout: dropout rate
+        :param attention_layer: attention layer type
+        :param attention_layer_params: attention layer parameters
+        """
+        super().__init__()
+        attention_layer_params = attention_layer_params or {}
+        self.heads = nn.ModuleList(
+            [attention_layer(d_model, head_size, dropout, **attention_layer_params) for _ in range(n_head)])
+        self.fc = nn.Linear(n_head * head_size, d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, q, k, v, attn_mask=None, is_causal=False):
+        if is_causal is not False:
+            raise ValueError("AttentionHead does not support is_causal")
+
+        out = torch.cat([h(q, k, v, attn_mask) for h in self.heads], dim=-1)
+        return self.dropout(self.fc(out))
+
+
+class RelativeTransformerEncoderLayer(TransformerEncoderLayer):
+    def __init__(self, d_model: int, n_head: int, dropout: float, multihead_bias: bool, n_token: int,
+                 norm_layer: Callable = nn.LayerNorm):
+        super().__init__(d_model, n_head, dropout, multihead_bias, norm_layer)
+        self.attention = MultiHeadAttention(d_model, n_head, d_model // n_head, dropout, AttentionHead,
+                                            dict(attention_operation=RelativePositionalEncoding(n_token)))
+
+    def forward(self, q, k, v, *, mask=None, is_causal=False):
+        if is_causal is not False:
+            raise ValueError('is_causal is not supported for RelativeTransformerEncoderLayer')
+        return super().forward(q, k, v, mask=mask)
 
 
 def _init_transformer_weights(module):
@@ -101,8 +191,7 @@ class TransformerEncoder(nn.Module):
         :param transformer_encoder_layer_params: additional parameters to `transformer_encoder_layer`
         """
         super().__init__()
-        if transformer_encoder_layer_params is None:
-            transformer_encoder_layer_params = {}
+        transformer_encoder_layer_params = transformer_encoder_layer_params or {}
         self.layers = nn.ModuleList(
             [transformer_encoder_layer(d_model, n_heads, dropout, multihead_bias, **transformer_encoder_layer_params)
              for

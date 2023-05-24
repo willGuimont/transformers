@@ -4,3 +4,4 @@ torchvision
 einops
 poutyne
 matplotlib
+git+https://github.com/willGuimont/pipeline

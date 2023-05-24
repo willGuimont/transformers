@@ -24,19 +24,19 @@ def relative_positional_encoding(n_tokens: int, embedding: nn.Embedding,
 
 
 class RelativePositionalEncoding(nn.Module):
-    def __init__(self, n_tokens: int, d_model: int):
+    def __init__(self, n_tokens: int):
         """
         Absolute positional encoding.
         """
         super().__init__()
         self.n_tokens = n_tokens
-        self.embeddings = nn.Embedding(2 * n_tokens - 1, d_model)
+        self.embeddings = nn.Embedding(2 * n_tokens - 1, 1)
 
     def forward(self, x):
         """
-        Generate positional encoding to input.
+        Add positional encoding to input.
         :param x: input of shape (batch, n_tokens, d_model)
         :return: positional encoding of shape (1, n_tokens, d_model)
         """
         pe = relative_positional_encoding(self.n_tokens, self.embeddings, device=x.device)
-        return pe
+        return x + pe.squeeze()

@@ -5,7 +5,7 @@ import torch.nn as nn
 
 from transformers.transformers import TransformerEncoderLayer, TransformerEncoder, SelfAttentionTransformerEncoder, \
     TransformerDecoderLayer, \
-    TransformerDecoder, Transformer
+    TransformerDecoder, Transformer, generate_causal_mask
 
 
 class NoBiasLayerNorm(nn.LayerNorm):
@@ -59,6 +59,8 @@ class ParallelTransformerEncoderLayer(TransformerEncoderLayer):
         q, k, v = self.norm1_q(q), self.norm1_k(k), v
         # Apply mlp
         mlp_out = self.ffn(q) + self.mlp_bias
+        if mask is None and is_causal:
+            mask = generate_causal_mask(q.size(1), q.device)
         # Apply multi-head attention
         attention_out = self.attention(
             q, k, v,
