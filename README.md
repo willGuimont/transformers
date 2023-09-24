@@ -34,6 +34,7 @@ NLP:
 
 ## Next steps
 
+- Rotary positional encoding https://arxiv.org/pdf/2104.09864.pdf
 - Optimizing Deeper Transformers on Small Datasets (Xu et al., 2021)
 - Neural Machine Translation by Jointly Learning to Align and Translate (Bahdanau et al., 2016)
 - Hiera: A Hierarchical Vision Transformer without the Bells-and-Whistles (Ryali et al., 2023)
