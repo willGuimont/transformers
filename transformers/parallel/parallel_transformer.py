@@ -170,11 +170,12 @@ class ParallelTransformerDecoder(TransformerDecoder):
 
 
 class ParallelTransformer(Transformer):
-    def __init__(self, num_layers: int, d_model: int, n_heads: int, out_size: int, dropout: float,
+    def __init__(self, num_layers_enc: int, num_layers_dec, d_model: int, n_heads: int, out_size: int, dropout: float,
                  multihead_bias: bool = True, positional_encoding: Optional[nn.Module] = None):
         """
         Transformer with parallel encoder and decoder.
-        :param num_layers: number of transformer layers
+        :param num_layers_enc: number of transformer layers in encoder
+        :param num_layers_dec: number of transformer layers in decoder
         :param d_model: dimension of model
         :param n_heads: number of heads in each transformer layer
         :param out_size: output size
@@ -185,6 +186,6 @@ class ParallelTransformer(Transformer):
         # Use ParallelSelfAttentionTransformerEncoder instead of SelfAttentionTransformerEncoder
         # Use ParallelTransformerDecoder instead of TransformerDecoder
         # and do not use bias on multi-head attention
-        super().__init__(num_layers, d_model, n_heads, out_size, dropout, multihead_bias=multihead_bias,
+        super().__init__(num_layers_enc, num_layers_dec, d_model, n_heads, out_size, dropout, multihead_bias=multihead_bias,
                          self_attention_transformer_layer=ParallelSelfAttentionTransformerEncoder,
                          decoder_layer=ParallelTransformerDecoder, positional_encoding=positional_encoding)

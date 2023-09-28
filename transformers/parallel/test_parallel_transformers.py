@@ -74,7 +74,7 @@ class TestParallelTransformer(unittest.TestCase):
         d_model = 128
         out_size = 10
 
-        transformer = ParallelTransformer(6, d_model, 4, out_size, 0.1)
+        transformer = ParallelTransformer(6, 6, d_model, 4, out_size, 0.1)
 
         x = torch.randn((batch, num_token, d_model))
         target = torch.randn((batch, num_token, d_model))

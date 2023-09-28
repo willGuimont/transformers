@@ -6,6 +6,19 @@ from torch.utils.data import Subset, DataLoader
 from torchvision.datasets import CIFAR10
 
 
+def split_dataset(dataset, split: float):
+    # Split data
+    num_data = len(dataset)
+    indices = np.arange(num_data)
+    np.random.shuffle(indices)
+    split = math.floor(split * num_data)
+    train_idx, valid_idx = indices[:split], indices[split:]
+    train_dataset = Subset(dataset, train_idx)
+    valid_dataset = Subset(dataset, valid_idx)
+
+    return train_dataset, valid_dataset
+
+
 def get_cifar10_dataloaders(train_split: float, batch_size: int, num_workers: int = 4):
     # Data augmentation
     transform_train = T.Compose([
@@ -25,13 +38,7 @@ def get_cifar10_dataloaders(train_split: float, batch_size: int, num_workers: in
     cifar_test.transform = transform_test
 
     # Split data
-    num_data = len(cifar)
-    indices = np.arange(num_data)
-    np.random.shuffle(indices)
-    split = math.floor(train_split * num_data)
-    train_idx, valid_idx = indices[:split], indices[split:]
-    train_dataset = Subset(cifar, train_idx)
-    valid_dataset = Subset(cifar, valid_idx)
+    train_dataset, valid_dataset = split_dataset(cifar, train_split)
 
     # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers,

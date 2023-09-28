@@ -352,7 +352,7 @@ class TransformerDecoder(nn.Module):
 
 
 class Transformer(nn.Module):
-    def __init__(self, num_layers: int, d_model: int, n_heads: int, out_size: int, dropout: float,
+    def __init__(self, num_layers_enc: int, num_layers_dec: int, d_model: int, n_heads: int, out_size: Optional[int], dropout: float,
                  multihead_bias: bool = True,
                  self_attention_transformer_layer: Callable = SelfAttentionTransformerEncoder,
                  self_attention_transformer_params: Optional[dict] = None,
@@ -360,10 +360,11 @@ class Transformer(nn.Module):
                  positional_encoding: Optional[nn.Module] = None):
         """
         Transformer model from "Attention is all you need" (https://arxiv.org/abs/1706.03762).
-        :param num_layers: number of transformer layers
+        :param num_layers_enc: number of transformer layers in encoder
+        :param num_layers_dec: number of transformer layers in decoder
         :param d_model: dimension of model
         :param n_heads: number of heads in each transformer layer
-        :param out_size: output size
+        :param out_size: output size using final linear layer, None to not use final linear layer
         :param dropout: dropout rate
         :param multihead_bias: whether to use bias in multi-head attention
         :param self_attention_transformer_layer: self-attention transformer layer type, defaults to SelfAttentionTransformerEncoder
@@ -377,11 +378,14 @@ class Transformer(nn.Module):
             self_attention_transformer_params = {}
         if decoder_params is None:
             decoder_params = {}
-        self.transformer_encoder = self_attention_transformer_layer(num_layers, d_model, n_heads, dropout,
+        self.transformer_encoder = self_attention_transformer_layer(num_layers_enc, d_model, n_heads, dropout,
                                                                     multihead_bias, **self_attention_transformer_params)
-        self.transformer_decoder = decoder_layer(num_layers, d_model, n_heads, dropout, multihead_bias,
+        self.transformer_decoder = decoder_layer(num_layers_dec, d_model, n_heads, dropout, multihead_bias,
                                                  **decoder_params)
-        self.fc = nn.Linear(d_model, out_size)
+        if out_size is not None:
+            self.fc = nn.Linear(d_model, out_size)
+        else:
+            self.fc = pp.Identity()
         if positional_encoding is None:
             positional_encoding = AbsolutePositionalEncoding()
         self.positional_encoding = positional_encoding
