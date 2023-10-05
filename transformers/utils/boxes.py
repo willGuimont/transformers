@@ -2,6 +2,30 @@ import torch
 from torchvision.ops._utils import _upcast
 
 
+def box_cxcywh_to_xyxy(box):
+    """
+    Convert boxes from (cx, cy, w, h) to (x1, y1, x2, y2)
+    :param box: tensor of shape (N, 4), where each row is (cx, cy, w, h)
+    :return: tensor of shape (N, 4), where each row is (x1, y1, x2, y2)
+    """
+    cx, cy, w, h = box.unbind(-1)
+    b = [(cx - 0.5 * w), (cy - 0.5 * h),
+         (cx + 0.5 * w), (cy + 0.5 * h)]
+    return torch.stack(b, dim=-1)
+
+
+def box_xyxy_to_cxcywh(box):
+    """
+    Convert boxes from (x1, y1, x2, y2) to (cx, cy, w, h)
+    :param box: tensor of shape (N, 4), where each row is (x1, y1, x2, y2)
+    :return: tensor of shape (N, 4), where each row is (cx, cy, w, h)
+    """
+    x1, y1, x2, y2 = box.unbind(-1)
+    b = [(x1 + x2) / 2, (y1 + y2) / 2,
+         (x2 - x1), (y2 - y1)]
+    return torch.stack(b, dim=-1)
+
+
 def box_area(boxes: torch.Tensor) -> torch.Tensor:
     """
     Compute the area of bounding boxes.

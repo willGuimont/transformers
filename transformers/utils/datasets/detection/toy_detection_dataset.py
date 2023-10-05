@@ -31,8 +31,10 @@ class ToyDetectionDataset:
         image = torch.zeros((1, self.image_size, self.image_size))
         boxes = torch.zeros((self.num_objects, 4))
         for i in range(self.num_objects):
+            # TODO min and max object size
             x1, y1 = torch.randint(0, self.image_size - 1, (2,))
-            x2, y2 = torch.randint(x1 + 1, self.image_size, (2,))
+            x2 = torch.randint(x1 + 1, self.image_size, (1,))
+            y2 = torch.randint(y1 + 1, self.image_size, (1,))
             image[:, y1:y2, x1:x2] = 1
 
             cx, cy = (x1 + x2) / 2 / self.image_size, (y1 + y2) / 2 / self.image_size
