@@ -26,3 +26,6 @@ class TestHungarianMatcher(unittest.TestCase):
         from_idx, to_idx = out[0]
         self.assertTrue((torch.arange(10) == from_idx).all())
         self.assertTrue((torch.arange(10).flip(0) == to_idx).all())
+
+    def test_matching_complex(self):
+        self.assertTrue(False)
