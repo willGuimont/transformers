@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from transformers.positional_encoding.relative_positional_encoding import relative_positional_encoding, \
+from nnet.positional_encoding.relative_positional_encoding import relative_positional_encoding, \
     RelativePositionalEncoding
 
 

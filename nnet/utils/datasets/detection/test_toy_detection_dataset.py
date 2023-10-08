@@ -1,6 +1,6 @@
 import unittest
 
-from transformers.utils.datasets.detection.toy_detection_dataset import ToyDetectionDataset
+from nnet.utils.datasets.detection.toy_detection_dataset import ToyDetectionDataset
 
 
 class TestToyDetectionDataset(unittest.TestCase):

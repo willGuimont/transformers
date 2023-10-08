@@ -1,6 +1,6 @@
 import unittest
 
-from transformers.positional_encoding.learnable_positional_encoding import LearnablePositionalEncoding
+from nnet.positional_encoding.learnable_positional_encoding import LearnablePositionalEncoding
 
 
 class TestLearnablePositionalEncoding(unittest.TestCase):

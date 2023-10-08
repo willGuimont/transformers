@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from transformers.transformers import FeedForward, TransformerEncoderLayer, TransformerEncoder, \
+from nnet.transformers import FeedForward, TransformerEncoderLayer, TransformerEncoder, \
     SelfAttentionTransformerEncoder, TransformerDecoderLayer, TransformerDecoder, Transformer, AttentionHead, \
     MultiHeadAttention, RelativeTransformerEncoderLayer
 

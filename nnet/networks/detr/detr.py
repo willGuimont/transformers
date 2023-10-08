@@ -7,8 +7,9 @@ from torch.utils.data import Subset
 
 import einops as ein
 
-from transformers.transformers import Transformer
-from transformers.utils.datasets.detection.toy_detection_dataset import ToyDetectionDataset
+from nnet.matchers.hungarian_matcher import HungarianMatcher
+from nnet.transformers import Transformer
+from nnet.utils.datasets.detection.toy_detection_dataset import ToyDetectionDataset
 
 
 class DETR(nn.Module):
@@ -44,7 +45,7 @@ if __name__ == '__main__':
     import pathlib
 
     import poutyne as pt
-    from transformers.utils.history import History
+    from nnet.utils.history import History
 
     # Training parameters
     epoch = 100
@@ -52,6 +53,7 @@ if __name__ == '__main__':
     learning_rate = 1e-4
     train_split = 0.8
     val_split = 0.1
+    device = 'cuda' if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else 'cpu')
 
     # Model parameters
     in_dim = 3
@@ -63,6 +65,9 @@ if __name__ == '__main__':
     out_dim = 512
     num_classes = 10
     dropout = 0.1
+    cost_class = 1
+    cost_bbox = 1
+    cost_giou = 1
     pooling = 'mean'
     num_workers = 0
 
@@ -87,13 +92,13 @@ if __name__ == '__main__':
     # Model and optimizer
     model = DETR(nn.Sequential(nn.Conv2d(1, d_model, 3)), 1, 5, d_model, n_head, n_layer, n_layer, dropout)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-    model = pt.Model(model, optimizer, 'cross_entropy', batch_metrics=['accuracy'])
-    model.cuda()
+    model = pt.Model(model, optimizer, HungarianMatcher(cost_class, cost_bbox, cost_giou), batch_metrics=['accuracy'])
+    model.to(device)
 
     # Training
     pathlib.Path('logs').mkdir(parents=True, exist_ok=True)
     history = model.fit_generator(train_loader, valid_loader, epochs=epoch, callbacks=[
-        pt.ModelCheckpoint('logs/perceiver_io_best_epoch_{epoch}.ckpt', monitor='val_acc', mode='max',
+        pt.ModelCheckpoint('logs/detr_best_epoch_{epoch}.ckpt', monitor='val_acc', mode='max',
                            save_best_only=True,
                            keep_only_last_best=True, restore_best=True, verbose=True,
                            temporary_filename='best_epoch.ckpt.tmp'),

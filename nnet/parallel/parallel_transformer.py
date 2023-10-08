@@ -3,7 +3,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 
-from transformers.transformers import TransformerEncoderLayer, TransformerEncoder, SelfAttentionTransformerEncoder, \
+from nnet.transformers import TransformerEncoderLayer, TransformerEncoder, SelfAttentionTransformerEncoder, \
     TransformerDecoderLayer, \
     TransformerDecoder, Transformer, generate_causal_mask
 

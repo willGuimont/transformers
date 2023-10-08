@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from transformers.parallel.parallel_transformer import ParallelTransformerEncoderLayer, ParallelTransformerEncoder, \
+from nnet.parallel.parallel_transformer import ParallelTransformerEncoderLayer, ParallelTransformerEncoder, \
     ParallelSelfAttentionTransformerEncoder, ParallelTransformerDecoderLayer, ParallelTransformerDecoder, \
     ParallelTransformer
 

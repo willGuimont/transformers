@@ -2,8 +2,8 @@ import unittest
 
 import torch
 
-from transformers.matchers.hungarian_matcher import HungarianMatcher
-from transformers.utils.datasets.detection.toy_detection_dataset import ToyDetectionDataset
+from nnet.matchers.hungarian_matcher import HungarianMatcher
+from nnet.utils.datasets.detection.toy_detection_dataset import ToyDetectionDataset
 
 
 class TestHungarianMatcher(unittest.TestCase):

@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from transformers.positional_encoding.learnable_fourier_positional_encoding import LearnableFourierPositionalEncoding
+from nnet.positional_encoding.learnable_fourier_positional_encoding import LearnableFourierPositionalEncoding
 
 
 class TestLearnableFourierPositionalEncoding(unittest.TestCase):

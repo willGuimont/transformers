@@ -5,8 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from transformers.positional_encoding.absolute_positional_encoding import AbsolutePositionalEncoding
-from transformers.positional_encoding.relative_positional_encoding import RelativePositionalEncoding
+from nnet.positional_encoding.absolute_positional_encoding import AbsolutePositionalEncoding
+from nnet.positional_encoding.relative_positional_encoding import RelativePositionalEncoding
 
 
 class FeedForward(nn.Module):

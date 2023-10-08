@@ -4,8 +4,8 @@ import einops as ein
 import torch
 import torch.nn as nn
 
-from transformers.positional_encoding.absolute_positional_encoding import absolute_positional_encoding
-from transformers.transformers import TransformerEncoder, SelfAttentionTransformerEncoder
+from nnet.positional_encoding.absolute_positional_encoding import absolute_positional_encoding
+from nnet.transformers import TransformerEncoder, SelfAttentionTransformerEncoder
 
 
 class PerceiverIO(nn.Module):
@@ -117,14 +117,15 @@ class ClassificationPerceiverIO(nn.Module):
 
 if __name__ == '__main__':
     import poutyne as pt
-    from transformers.utils.datasets import get_cifar10_dataloaders
-    from transformers.utils.history import History
+    from nnet.utils.datasets import get_cifar10_dataloaders
+    from nnet.utils.history import History
 
     # Training parameters
     epoch = 100
     batch_size = 128
     learning_rate = 1e-4
     train_split = 0.8
+    device = 'cuda' if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else 'cpu')
 
     # Model parameters
     in_dim = 3
@@ -146,7 +147,7 @@ if __name__ == '__main__':
                                       num_classes, dropout, pooling)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     model = pt.Model(model, optimizer, 'cross_entropy', batch_metrics=['accuracy'])
-    model.cuda()
+    model.to(device)
 
     # Training
     pathlib.Path('logs').mkdir(parents=True, exist_ok=True)

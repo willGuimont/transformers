@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from transformers.positional_encoding.absolute_positional_encoding import AbsolutePositionalEncoding, \
+from nnet.positional_encoding.absolute_positional_encoding import AbsolutePositionalEncoding, \
     absolute_positional_encoding
 
 

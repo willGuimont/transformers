@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from transformers.transformers import FeedForward
+from nnet.transformers import FeedForward
 
 
 class LearnableFourierPositionalEncoding(nn.Module):

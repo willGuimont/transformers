@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from transformers.positional_encoding.absolute_positional_encoding import absolute_positional_encoding
-from transformers.transformers import SelfAttentionTransformerEncoder, FeedForward
+from nnet.positional_encoding.absolute_positional_encoding import absolute_positional_encoding
+from nnet.transformers import SelfAttentionTransformerEncoder, FeedForward
 
 
 class ChatLite(nn.Module):
@@ -144,8 +144,8 @@ if __name__ == '__main__':
     max_iters = 100_000
     eval_interval = 1_000
     learning_rate = 3e-4
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     eval_iters = 200
+    device = 'cuda' if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else 'cpu')
 
     # Model parameters
     d_model = 384
