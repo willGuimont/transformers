@@ -1,9 +1,27 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+title: >-
+  transformer: flexible and easy to understand transformer
+  models
+message: 'If you use this software, please cite it as below.'
+type: software
 authors:
-  - family-names: "Guimont-Martin"
-    given-names: "William"
-    orcid: https://orcid.org/my-orcid?orcid=0000-0002-8850-8399
-title: "transformer: flexible and easy to understand transformer models"
+  - family-names: Guimont-Martin
+    given-names: William
+    orcid: 'https://orcid.org/0000-0002-8850-8399'
+    email: william.guimont-martin.1@ulaval.ca
+    affiliation: Université Laval
+repository-code: 'https://github.com/willGuimont/transformers'
+url: 'https://github.com/willGuimont/transformers'
+abstract: >-
+  Collection of easy to understand transformer-based models
+  in PyTorch. The implementation is heavily commented and
+  should be easy to follow.
+keywords:
+  - deep-learning
+  - transformer
+license: MIT
 version: 0.1.0
-date-released: 2023-02-23
+date-released: '2023-02-23'
