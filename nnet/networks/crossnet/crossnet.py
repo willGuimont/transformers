@@ -160,6 +160,7 @@ if __name__ == '__main__':
                            keep_only_last_best=True, restore_best=True, verbose=True,
                            temporary_filename='best_epoch.ckpt.tmp'),
         pt.ReduceLROnPlateau(monitor='val_acc', mode='max', factor=0.5, patience=5, verbose=True),
+        pt.EarlyStopping(monitor='val_acc', mode='max', patience=10, verbose=True)
     ])
 
     # Display training history
