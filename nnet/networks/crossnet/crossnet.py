@@ -47,13 +47,14 @@ class CrossNet(nn.Module):
         # Project input array to make it of shape (batch_size, n, d_model)
         x = self.input_array_proj(x)
 
-        # Add position encoding
-        num_tokens, dim = x.shape[1:]
-        x += absolute_positional_encoding(num_tokens, dim, device=x.device)
-
         for _ in range(self.num_layers):
-            latent = self.cross_attention(q=latent, k=x, v=x)
+            # Add position encoding
+            num_tokens, dim = x.shape[1:]
+            x_pos = x + absolute_positional_encoding(num_tokens, dim, device=x.device)
+
+            latent = self.cross_attention(q=latent, k=x_pos, v=x_pos)
             # Keep the latent array for the next iteration and add them as new tokens to refer back to
+            num_tokens, dim = latent.shape[1:]
             x = torch.cat([x, latent], dim=1)
 
         # Apply self-attention to latent array
@@ -70,7 +71,7 @@ class CrossNet(nn.Module):
 
 class ClassificationCrossNet(nn.Module):
     def __init__(self, in_dim: int, d_model: int, n_head: int, n_latent: int, n_layer: int,
-                 n_output: int, out_dim: int, num_classes: int, dropout: float, pooling: str = 'mean'):
+                 n_output: int, out_dim: int, num_classes: int, dropout: float, pooling: str = 'mean', num_layers=10):
         """
         Classification using CrossNet
         :param in_dim: dimension of the input array
@@ -86,7 +87,7 @@ class ClassificationCrossNet(nn.Module):
         """
         super().__init__()
         self.pooling = pooling
-        self.crossnet = CrossNet(in_dim, d_model, n_head, n_latent, n_layer, n_output, out_dim, dropout)
+        self.crossnet = CrossNet(in_dim, d_model, n_head, n_latent, n_layer, n_output, out_dim, dropout, num_layers=num_layers)
         self.fc = nn.Linear(out_dim, num_classes)
 
     def forward(self, x):
@@ -125,7 +126,7 @@ if __name__ == '__main__':
 
     # Training parameters
     epoch = 100
-    batch_size = 128
+    batch_size = 64
     learning_rate = 1e-4
     train_split = 0.8
     device = 'cuda' if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else 'cpu')
@@ -147,7 +148,7 @@ if __name__ == '__main__':
 
     # Model and optimizer
     model = ClassificationCrossNet(in_dim, d_model, n_head, n_latent, n_layer, n_output, out_dim,
-                                      num_classes, dropout, pooling)
+                                      num_classes, dropout, pooling, num_layers=5)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     model = pt.Model(model, optimizer, 'cross_entropy', batch_metrics=['accuracy'])
     model.to(device)
